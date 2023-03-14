@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="./icon/logo.svg"></link>
+    <title>Data Log</title>
+    <script src="https://cdn.staticfile.org/react/18.2.0/umd/react.development.js"></script>
+    <!-- <script src="./dependence/react.development.js"></script> -->
+
+    <script src="https://cdn.staticfile.org/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <!-- <script src="./dependence/react-dom.development.js"></script> -->
+
+    <script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+    <!-- 6.15版 -->
+    <!-- <script src="./dependence/babel.min.js"></script> -->
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <!-- <script src="./dependence/moment.min.js"></script> -->
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.8/antd.compact.min.css" rel="stylesheet"/>
+    <!-- <link href="./dependence/antd.compact.min.css" rel="stylesheet" /> -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.8/antd.min.js"></script>
+    <!-- <script src="./dependence/antd.min.js"></script> -->
+   
+  </head>
+  <body>
+    <div id="root"></div>
+    <style type="text/css">
+      .logo {
+        width: 50px;
+        height: 50px;
+        margin-right: 100px;
+        margin-left: 100px;
+      }
+      /* .application,.application:hover,.application:active { */
+      .application{
+        margin-right: 100px;
+        /* background-image: linear-gradient(90deg, #768bf7, #997ce9) */
+      }
+      
+      body {
+        height: 100%;
+        width: 100%;
+        /* font-size: 16px; */
+      }
+      .space{
+        margin-bottom: 20px;
+      }
+      .content {
+        display: flex;
+        min-height: 90vh;
+      }
+      .left {
+        min-width: 200px;
+        /* background: #bfa; */
+        border-right: 1px solid #f0f0f0;
+      }
+      .anchor-title{
+        /* font-size: 20px; */
+        padding-left: 20px;
+      }
+      .anchor{
+        /* font-size: 16px; */
+        padding-left: 40px;
+      }
+      .right {
+        flex: 1;
+        /* background: #fba; */
+        padding: 0 220px;
+      }
+      .title{
+        border: 1px solid #ccc;
+        background: #bebebe;
+        color: #333333;
+        padding: 2px 30px;
+        font-size: 16px;
+        max-width: 1000px;
+        margin: 30px 0;
+      }
+      .checkbox{
+        margin-left: 40px;
+        /* font-size: 20px; */
+      }
+      .paramsCheckbox{
+        background: white;
+        max-width: 1000px;
+        padding: 12px 0;
+        border: 1px solid #d9d9d9;
+        box-shadow: 1px 1px 3px #d9d9d9;
+      }
+      .preview{
+        max-width: 1000px;
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 40px;
+      }
+      .otherLogRight{
+        max-width: 1000px;
+        margin: 30px 0;
+      }
+      .otherForm{
+        display: flex;
+        align-items: center;
+        margin-bottom: 40px;
+        max-width: 1000px;
+        /* font-size: 16px; */
+      }
+      .otherFormLabel {
+        width: 118px;
+      }
+      .otherFormValue{
+        flex: 1;
+      }
+      /* 复选框统一大小 */
+      .ant-checkbox-inner{
+        width: 16px;
+        height: 16px;
+        margin-bottom: 1px;
+      }
+      /* 全选居中 */
+      .ant-divider-horizontal{
+        margin: 12px 0;
+      }
+      .sort{
+        display: flex;
+        justify-content: space-between;
+        margin-right: 100px;
+      }
+      /* 校验 */
+      .validation{
+        margin-top: -30px;
+        margin-left: 120px;
+        color: red;
+      }
+      .validation::before{
+        display: inline-block;
+        margin-right: 4px;
+        color: #ff4d4f;
+        /* font-size: 14px; */
+        font-family: SimSun,sans-serif;
+        line-height: 1;
+        content: "*";
+        vertical-align: bottom;
+      }
+      /* 预览时没有选择的参数样式 */
+      .formPrompt{
+        display: flex;
+        justify-content: center;
+        margin: 10px;
+      }
+
+      @media screen and (max-width: 1500px) {
+        .application {
+          margin-right: 50px;
+        }
+        .logo {
+          width: 50px;
+          height: 50px;
+          margin: 0 40px;
+        }
+        .right {
+          flex: 1;
+          padding: 20px;
+        }
+      }
+    </style>
+    <script >
+      const vscode = acquireVsCodeApi();
+    </script>
+    <script type="text/babel">
+      const { Image, Tabs, Button, Anchor, Checkbox, Row, Col, Input, Divider, Modal, Select, Table, message } = antd;
+      const { Header, Footer, Sider, Content } = antd.Layout;
+      const { Link } = Anchor;
+      const CheckboxGroup = Checkbox.Group;
+      const { Search } = Input;
+      
+      let fileSavePath = ''
+      let info = {
+        GlobalSetting: {
+          SwitchEnabel: true,
+          Output: {
+            Screen: true,
+            File: {
+              IsSelect: true,
+              Path: ''
+            }
+          },
+        },
+        ParamTest: {
+          SwitchEnabel: [
+            {
+              Key: 'Pass',
+              Value: true,
+            },
+            {
+              Key: 'Fail',
+              Value: true,
+            },
+          ],
+          TableHeadersALL: true,
+          TableHeaders: [
+            {
+              Key: 'Pass/Fail',
+              Value: true,
+              Id: 0,
+            },
+            {
+              Key: 'TestNumber',
+              Value: true,
+              Id: 1,
+            },
+            {
+              Key: 'TestName',
+              Value: true,
+              Id: 2,
+            },
+            {
+              Key: 'DUTId',
+              Value: true,
+              Id: 3,
+            },
+            {
+              Key: 'PinList',
+              Value: true,
+              Id: 4,
+            },
+            {
+              Key: 'Limit',
+              Value: true,
+              Id: 5,
+            },
+            {
+              Key: 'MeasuredValue',
+              Value: true,
+              Id: 6,
+            },
+          ],
+        },
+        FunctionalTest: {
+          SwitchEnabel: [
+            {
+              Key: 'Pass',
+              Value: true,
+            },
+            {
+              Key: 'Fail',
+              Value: true,
+            },
+          ],
+          TableHeadersALL: true,
+          TableHeaders: [
+            {
+              Key: 'Pass/Fail',
+              Value: true,
+              Id: 0,
+            },
+            {
+              Key: 'TestNumber',
+              Value: true,
+              Id: 1,
+            },
+            {
+              Key: 'TestName',
+              Value: true,
+              Id: 2,
+            },
+            {
+              Key: 'DUTId',
+              Value: true,
+              Id: 3,
+            },
+            {
+              Key: 'PatternName',
+              Value: true,
+              Id: 4,
+            },
+            {
+              Key: 'RegisterInit',
+              Value: true,
+              Id: 5,
+            },
+            {
+              Key: 'SubPattern',
+              Value: true,
+              Id: 6,
+            },
+            {
+              Key: 'Per-PinResult',
+              Value: true,
+              Id: 7,
+            },
+          ],
+        },
+        OtherLog: {
+          SysLog: {
+            Level: 'debug',
+            Path: '',
+          },
+          UserLog: {
+            Level: 'debug',
+            Path: '',
+          },
+        },
+      };
+      
+      const NavAction = () => {
+        
+        const [data, setData] = React.useState(info);
+        let globalPath = ''
+        React.useEffect(()=>{
+          window.addEventListener('message', (e) => {
+          if(e.data.command === 'fileContent'){
+            fileSavePath = e.data.path
+            info=JSON.parse(e.data.text)
+            setData(()=>JSON.parse(e.data.text)); 
+          } else if(e.data.command === 'pathSetting'){
+            if(e.data.type === 'globalLog'){
+              setData(info.GlobalSetting.Output.File.Path = e.data.text)
+            } else if(e.data.type === 'userLog'){
+              // info.OtherLog.UserLog.Path = e.data.text
+              setData(info.OtherLog.UserLog.Path = e.data.text)
+            } else if(e.data.type === 'sysLog') {
+              // info.OtherLog.SysLog.Path = e.data.text
+              setData(info.OtherLog.SysLog.Path = e.data.text)
+            }
+          }
+          });
+        },[data])
+
+        
+        // 全局设置 input 校验
+        const [validation, setValidation] = React.useState(0)
+
+        // 其他日志 input 校验
+        const [sysValidation, setSysValidation] = React.useState(0)
+        const [useValidation, setUserValidation] = React.useState(0)
+
+        const handleSave = () => {
+          if(validation === 0 && sysValidation === 0 && useValidation === 0){
+            vscode.postMessage({
+              command: 'fileSave',
+              text: JSON.stringify(info),
+              path: fileSavePath
+            })
+            message.success('保存成功')
+        }
+      }
+        // 左右占位符
+        const extraCount = {
+          left: <img src="./icon/logo.svg" className="logo" />,
+          right: <Button type="primary" danger className="application" onClick={handleSave}>应用</Button>,
+        };
+  
+        // 全局设置
+        const GlobalSetting = () => {
+          // 选择
+          const handleChange=(e)=>{
+            setData(info.GlobalSetting.SwitchEnabel=e.target.checked )
+          }
+          const handleOutputChange =(e)=>{
+            setData(info.GlobalSetting.Output.Screen = e.target.checked)
+          }
+          const handleOutput1Change =(e)=>{
+            setData(info.GlobalSetting.Output.File.IsSelect = e.target.checked)
+          }
+          const handleOutput2Change =(value)=>{
+            vscode.postMessage({
+                command: 'findPath',
+                type:'globalLog',
+                text: value,
+              })
+          } 
+          return (
+            <div className="content">
+              <div className="left">
+                <Anchor affix={false} bounds={10}>
+                  <Link  title={<div className='anchor-title'>全局设置</div>} >
+                    <Link href="#switch" title={<div className='anchor'>开关设置</div>}/>
+                    <Link href="#outputMode" title={<div className='anchor'>输出方式</div>} />
+                  </Link>
+                </Anchor>
+                </div>
+              <div className="right">
+                <div id='switch' className='title'>开关设置</div>
+                <Checkbox checked={info.GlobalSetting.SwitchEnabel} onChange={handleChange} className="checkbox">DataLog</Checkbox>
+                <div id="outputMode" className='title'>输出方式</div>
+                <Checkbox className="checkbox space" defaultChecked={info.GlobalSetting.Output.Screen} value="screen" onChange={handleOutputChange} >
+                  终端界面
+                </Checkbox>
+                <div className="otherForm" >
+                  <div style={{width: 150}}> 
+                    <Checkbox className="checkbox" defaultChecked={info.GlobalSetting.Output.File.IsSelect}  value="file" onChange={handleOutput1Change}>
+                      文件：
+                    </Checkbox>    
+                  </div>
+                  <Search
+                        placeholder="选择本地路径"
+                        allowClear
+                        status={(validation === 1 || validation === 2) ? 'error': null}
+                        defaultValue={info.GlobalSetting.Output.File.Path}
+                        enterButton="浏览路径"
+                        onSearch={handleOutput2Change}
+                        size="large"
+                      />
+                  </div>
+                  {validation === 1 && <div className='validation'>值不能为空</div>}
+                  {validation === 2 && <div className='validation'>请输入正确路径</div>}
+              </div>
+            </div>
+          );
+        };
+
+        // 参数设置
+        const ParamsSetting = () => {
+          const defaultCheckedList = info.ParamTest.TableHeaders.filter(item=>item.Value).map(item=>item.Key)
+          const [open, setOpen] = React.useState(false);
+
+          const [checkedList, setCheckedList] = React.useState(defaultCheckedList);
+          const [indeterminate, setIndeterminate] = React.useState(true);
+          const [checkAll, setCheckAll] = React.useState(info.ParamTest.TableHeadersALL);
+
+          const sortHeaders = info.ParamTest.TableHeaders.sort((a,b) => a.Id - b.Id)
+          const firstHalf = sortHeaders.slice(0, Math.round(sortHeaders.length / 2))
+          const secondHalf = sortHeaders.slice(Math.round(sortHeaders.length /2, sortHeaders.length))
+          const plainOptions = info.ParamTest.TableHeaders.map(item => item.Key)
+          const defaultSwitch = info.ParamTest.SwitchEnabel.filter(item=>item.Value).map(item=>item.Key)
+          
+          const handleSwitchEnabelChange =(checkedValues)=>{
+          let paramsSwitchEnabel = []
+          if(checkedValues.toString() === ['Pass', 'Fail'].toString() ){
+            paramsSwitchEnabel =[{
+              Key: "Pass",
+              Value: true
+            },{
+              Key: "Fail",
+              Value: true
+            }]
+          } else if(checkedValues.includes('Pass')){
+            paramsSwitchEnabel =[{
+              Key: "Pass",
+              Value: true
+            },{
+              Key: "Fail",
+              Value: false
+            }]
+          }else  if(checkedValues.includes('Fail')){
+            paramsSwitchEnabel =[{
+              Key: "Pass",
+              Value: false
+            },{
+              Key: "Fail",
+              Value: true
+            }]
+          }else{
+            paramsSwitchEnabel = [{
+              Key: "Pass",
+              Value: false
+            },{
+              Key: "Fail",
+              Value: false
+            }]
+          } 
+           setData(info.ParamTest.SwitchEnabel = paramsSwitchEnabel)
+          }
+
+          // 全选
+          const handleCheckAllChange=(e)=>{
+            setCheckedList(e.target.checked ? plainOptions : []);
+            setIndeterminate(false);
+            setCheckAll(e.target.checked);
+
+            setData(info.ParamTest.TableHeadersALL = e.target.checked)
+            if(e.target.checked){
+              const selected = info.ParamTest.TableHeaders.map(item => ({
+                Key: item.Key,
+                Value: true,
+                Id: item.Id
+              }))
+              setData(info.ParamTest.TableHeaders = selected)
+            }else{
+              const selected = info.ParamTest.TableHeaders.map(item => ({
+                Key: item.Key,
+                Value: false,
+                Id: item.Id
+              }))
+              setData(info.ParamTest.TableHeaders = selected)
+            }
+          }
+          
+          // 参数选择
+          const handleChange=(list)=>{ 
+           setCheckedList(list);
+            setIndeterminate(!!list.length && list.length < plainOptions.length);
+            setCheckAll(list.length === plainOptions.length);
+
+            const differentList = [...plainOptions, ...list].filter(item => {
+              return !(plainOptions.includes(item) && list.includes(item)) 
+            })
+            const assignment = differentList.map(t=>({
+                    Key: t,
+                    Value: false,
+                  }
+              ))
+              const paramsItemsSelected = list.map(item=>{
+              return {
+                Key: item,
+                Value: true,
+              }
+            })
+            const mergeList = [...assignment, ...paramsItemsSelected]
+            mergeList.forEach(t => 
+              info.ParamTest.TableHeaders.forEach(item=>{
+                  if(item.Key === t.Key){
+                    return t.Id = item.Id
+                  }
+                })
+            )
+
+            if(mergeList.map(item => item.Value).includes(false)){
+              setData(info.ParamTest.TableHeadersALL = false)
+            }else{
+              setData(info.ParamTest.TableHeadersALL = true)
+            }
+            setData(info.ParamTest.TableHeaders = mergeList)
+
+          }
+
+
+          const showModal = () => setOpen(true);
+          const hideModal = () => setOpen(false);
+
+          // columns 
+          const columnsList = info.ParamTest.TableHeaders.filter(item=>item.Value).map(item=>item.Key)
+          const replaceLimitList =  columnsList.filter(item => item !== 'Limit').concat(['LowLimit', "HighLimit"]) 
+          const paramsColumns = (columnsList.includes('Limit') ? replaceLimitList : columnsList).map(item=>{
+            return {
+              title: item,
+              dataIndex: item,
+              key: item
+            }
+          })
+          // dataSource
+        const dataSource = [
+          {
+            key: '1',
+            "Pass/Fail": 'Pass',
+            "TestNumber": 10,
+            "TestName": 'tb_continuity',
+            "DUTId": 1,
+            "PinList":'A1',
+            "LowLimit": '-1.000V',
+            "HighLimit": '-200.000 mV',
+            "MeasuredValue": '-601.875 mV',
+          },
+          {
+            key: '2',
+            "Pass/Fail": 'Fail',
+            "TestNumber": 10,
+            "TestName": 'tb_continuity',
+            "DUTId": 1,
+            "PinList":'A1',
+            "LowLimit": '-1.000V',
+            "MeasuredValue": '-601.875 mV',
+            "HighLimit": '-200.000 mV',
+          },
+        ];
+
+          return(
+            <div className="content">
+              <div className="left">
+                <Anchor affix={false} bounds={10}	 >
+                  <Link  title={<div className='anchor-title'>DC/AC测试参数</div>} >
+                    <Link href="#paramsSwitch" title={<div className='anchor'>开关设置</div>}/>
+                    <Link href="#paramsSelect" title={<div className='anchor'>参数选择</div>} />
+                  </Link>
+                </Anchor>
+                </div>
+              <div className="right">
+                <div id='paramsSwitch' className='title'>开关设置</div>
+                <Checkbox.Group  style={{ width: '100%' }} defaultValue={defaultSwitch} onChange={handleSwitchEnabelChange}>
+                  <Checkbox className='checkbox' value="Pass">Pass</Checkbox>
+                  <Checkbox className='checkbox' value="Fail">Fail</Checkbox>
+                </Checkbox.Group>
+                <div id='paramsSelect' className='title'>参数选择</div>
+                <div className='paramsCheckbox'>
+                  <Checkbox className='checkbox'indeterminate={indeterminate} checked={checkAll} onChange={handleCheckAllChange} >
+                    全选
+                  </Checkbox>
+                  <Divider />
+                  <Checkbox.Group className='sort'  value={checkedList}  onChange={handleChange} >
+                      <div>
+                        {
+                          firstHalf.map(item=>(
+                            <div key={item.Id} >
+                            <Checkbox className='checkbox' value={item.Key}>{item.Key}</Checkbox>
+                            </div>
+                          ))
+                        }
+                      </div>
+                      <div>
+                        {
+                          secondHalf.map(item=>(
+                          <div key={item.Id} >
+                            <Checkbox className='checkbox' value={item.Key}>{item.Key}</Checkbox>
+                            </div>
+                          ))
+                        }
+                      </div>
+                      <div></div>
+                  </Checkbox.Group>
+                </div>
+                
+                <div className='preview'>
+                  <Button type="primary" onClick={showModal}>预览</Button>
+                  <Modal
+                    title="预览"
+                    open={open}
+                    width={1200}
+                    centered
+                    maskClosable={false}
+                    onOk={hideModal}
+                    onCancel={hideModal}
+                    footer={[
+                      <Button key="submit" type="primary" onClick={hideModal}>
+                        关闭
+                      </Button>
+                    ]}
+                  >
+                  {
+                    columnsList.length > 0 ? <Table columns={paramsColumns} dataSource={dataSource} pagination={false} bordered={false} /> : <div className='formPrompt'>暂无选择的参数</div>
+                  }
+                  
+                  </Modal>  
+                </div>
+                </div>
+            </div>
+          )
+        }
+        
+        // 功能参数
+        const FunSetting = () => {
+          const defaultCheckedList = info.FunctionalTest.TableHeaders.filter(item=>item.Value).map(item=>item.Key)
+          const [open, setOpen] = React.useState(false);
+
+          const [checkedList, setCheckedList] = React.useState(defaultCheckedList);
+          const [indeterminate, setIndeterminate] = React.useState(true);
+          const [checkAll, setCheckAll] = React.useState(info.FunctionalTest.TableHeadersALL);
+
+          const sortHeaders = info.FunctionalTest.TableHeaders.sort((a,b) => a.Id - b.Id)
+          const firstHalf = sortHeaders.slice(0, Math.round(sortHeaders.length / 2))
+          const secondHalf = sortHeaders.slice(Math.round(sortHeaders.length /2, sortHeaders.length))
+          const plainOptions = info.FunctionalTest.TableHeaders.map(item => item.Key)
+          const defaultSwitch = info.FunctionalTest.SwitchEnabel.filter(item => item.Value).map(item => item.Key)
+          const defaultParamsSelected = info.FunctionalTest.TableHeaders.filter(item=>item.Value).map(item=>item.Key)
+          
+          const handleSwitchEnabelChange =(checkedValues)=>{
+            let paramsSwitchEnabel = []
+            if(checkedValues.toString() === ['Pass', 'Fail'].toString() ){
+              paramsSwitchEnabel =[{
+                Key: "Pass",
+                Value: true
+              },{
+                Key: "Fail",
+                Value: true
+              }]
+            } else if(checkedValues.includes('Pass')){
+              paramsSwitchEnabel =[{
+                Key: "Pass",
+                Value: true
+              },{
+                Key: "Fail",
+                Value: false
+              }]
+            }else  if(checkedValues.includes('Fail')){
+              paramsSwitchEnabel =[{
+                Key: "Pass",
+                Value: false
+              },{
+                Key: "Fail",
+                Value: true
+              }]
+            }else{
+              paramsSwitchEnabel = [{
+                Key: "Pass",
+                Value: false
+              },{
+                Key: "Fail",
+                Value: false
+              }]
+            } 
+           setData(info.FunctionalTest.SwitchEnabel = paramsSwitchEnabel)
+          }
+
+          const handleChange=(list)=>{ 
+            setCheckedList(list);
+            setIndeterminate(!!list.length && list.length < plainOptions.length);
+            setCheckAll(list.length === plainOptions.length);
+
+           const differentList = [...plainOptions, ...list].filter(item => {
+              return !(plainOptions.includes(item) && list.includes(item)) 
+            })
+          const assignment = differentList.map(t=>({
+                  Key: t,
+                  Value: false,
+                }
+            ))
+            const paramsItemsSelected = list.map(item=>{
+            return {
+              Key: item,
+              Value: true,
+            }
+           })
+           const mergeList = [...assignment, ...paramsItemsSelected]
+           mergeList.forEach(t => 
+            info.FunctionalTest.TableHeaders.forEach(item=>{
+                if(item.Key === t.Key){
+                  return t.Id = item.Id
+                }
+              })
+           )
+           
+           
+           if(mergeList.map(item => item.Value).includes(false)){
+              setData(info.FunctionalTest.TableHeadersALL = false)
+            }else{
+              setData(info.FunctionalTest.TableHeadersALL = true)
+            }
+           setData(info.FunctionalTest.TableHeaders = mergeList)
+          }
+
+          const handleCheckAllChange=(e)=>{
+            setCheckedList(e.target.checked ? plainOptions : []);
+            setIndeterminate(false);
+            setCheckAll(e.target.checked);
+
+            if(e.target.checked){
+              const selected = info.FunctionalTest.TableHeaders.map(item => ({
+                Key: item.Key,
+                Value: true,
+                Id: item.Id
+              }))
+              setData(info.FunctionalTest.TableHeaders = selected)
+            }else{
+              const selected = info.FunctionalTest.TableHeaders.map(item => ({
+                Key: item.Key,
+                Value: false,
+                Id: item.Id
+              }))
+              setData(info.FunctionalTest.TableHeaders = selected)
+            }
+
+            setData(info.FunctionalTest.TableHeadersALL = e.target.checked)
+          }
+          const showModal = () => setOpen(true);
+          const hideModal = () => setOpen(false);
+          // columns 
+          const columnsList = info.FunctionalTest.TableHeaders.filter(item=>item.Value).map(item=>item.Key)
+          const replaceLimitList =  columnsList.filter(item => item !== 'Limit').concat(['LowLimit', "HighLimit"]) 
+          const paramsColumns = (columnsList.includes('Limit') ? replaceLimitList : columnsList).map(item=>{
+            return {
+              title: item,
+              dataIndex: item,
+              key: item
+            }
+          })
+          // dataSource
+        const dataSource = [
+          {
+            key: '1',
+            "Pass/Fail": 'Pass',
+            "TestNumber": 10,
+            "TestName": 'tb_continuity',
+            "DUTId": 1,
+            "PatternName":'A1',
+            "RegisterInit": '-1.000V',
+            "SubPattern": '-200.000 mV',
+            "Per-PinResult": '-601.875 mV',
+          },
+          {
+            key: '2',
+            "Pass/Fail": 'Pass',
+            "TestNumber": 10,
+            "TestName": 'tb_continuity',
+            "DUTId": 1,
+            "PatternName":'A1',
+            "RegisterInit": '-1.000V',
+            "SubPattern": '-200.000 mV',
+            "Per-PinResult": '-601.875 mV',
+          },
+        ];
+
+          return(
+            <div className="content">
+              <div className="left">
+                <Anchor affix={false} bounds={10}	 >
+                  <Link  title={<div className='anchor-title'>Pattern测试参数</div>} >
+                    <Link href="#funSwitch" title={<div className='anchor'>开关设置</div>}/>
+                    <Link href="#funSelect" title={<div className='anchor'>参数选择</div>} />
+                  </Link>
+                </Anchor>
+                </div>
+              <div className="right">
+                <div id='funSwitch' className='title'>开关设置</div>
+                <Checkbox.Group style={{ width: '100%' }} defaultValue={defaultSwitch} onChange={handleSwitchEnabelChange} >
+                  <Checkbox className='checkbox' value="Pass">Pass</Checkbox>
+                  <Checkbox className='checkbox' value="Fail">Fail</Checkbox>
+                </Checkbox.Group>
+                <div id='funSelect' className='title'>参数选择</div>
+                <div className='paramsCheckbox'>
+                  <Checkbox className='checkbox' indeterminate={indeterminate} checked={checkAll} onChange={handleCheckAllChange} >
+                    全选
+                  </Checkbox>
+                  <Divider />
+                  <Checkbox.Group className='sort'  value={checkedList}  onChange={handleChange} >
+                      <div>
+                        {
+                          firstHalf.map(item=>(
+                            <div key={item.Id} >
+                            <Checkbox className='checkbox' value={item.Key}>{item.Key}</Checkbox>
+                            </div>
+                          ))
+                        }
+                      </div>
+                      <div>
+                        {
+                          secondHalf.map(item=>(
+                          <div key={item.Id} >
+                            <Checkbox className='checkbox' value={item.Key}>{item.Key}</Checkbox>
+                            </div>
+                          ))
+                        }
+                      </div>
+                      <div></div>
+                  </Checkbox.Group>
+                </div>
+                
+                <div className='preview'>
+                  <Button type="primary" onClick={showModal}>预览</Button>
+                  <Modal
+                    title="预览"
+                    open={open} 
+                    width={1200}
+                    centered
+                    maskClosable={false}
+                    onOk={hideModal}
+                    onCancel={hideModal}
+                    footer={[
+                      <Button key="submit" type="primary" onClick={hideModal}>
+                        关闭
+                      </Button>
+                    ]}
+                  >
+                  {
+                    columnsList.length > 0 ? <Table columns={paramsColumns} dataSource={dataSource} pagination={false} bordered={false} /> : <div className='formPrompt'>暂无选择的参数</div>
+                  }
+                  
+                  </Modal>  
+                </div>
+                </div>
+            </div>
+          )
+        }
+        
+        // 其他日志
+        const OtherLogs = () => {
+          const options = [
+              {
+                value: 'debug',
+                label: 'debug',
+              },
+              {
+                value: 'info',
+                label: 'info',
+              },
+              {
+                value: 'warning',
+                label: 'warning',
+              },
+              {
+                value: 'error',
+                label: 'error',
+              },
+            ]
+          // system 
+          const handleSystemPathSelect =(value)=>{
+            vscode.postMessage({
+                command: 'findPath',
+                type:'sysLog',
+                text: value,
+              })
+          // if(value === ''){           
+          //   setSysValidation(1)
+          //   return message.error('值不能为空', 5)
+          // }else if(!(/^[a-zA-Z]:\\(?:\w+\\?)*$/).test(value)){
+          //   setSysValidation(2)
+          //   return message.error('请输入正确路径', 5)
+          // }
+          //   setData(info.OtherLog.SysLog.Path = value)
+
+          }
+
+          const handleSystemLevelChange =(value)=>{
+            setData(info.OtherLog.SysLog.Level = value)
+          }
+          // useLog
+          const handleUserlogPathSelect =(value)=>{
+            vscode.postMessage({
+                command: 'findPath',
+                type:'userLog',
+                text: value,
+              })
+          // if(value === ''){           
+          //   setUserValidation(1)
+          //   return message.error('值不能为空', 5)
+          // }else if(!(/^[a-zA-Z]:\\(?:\w+\\?)*$/).test(value)){
+          //   setUserValidation(2)
+          //   return message.error('请输入正确路径', 5)
+          // }
+          //   setData(info.OtherLog.UserLog.Path = value)
+          }
+
+          const handleUserlogLevelChange =(value)=>{
+            setData(info.OtherLog.UserLog.Level = value)
+          }
+
+          return(
+            <div className="content">
+              <div className="left">
+                <Anchor affix={false} bounds={10}	 >
+                  <Link  title={<div className='anchor-title'>其他日志</div>} >
+                    <Link href="#systemLog" title={<div className='anchor'>SystemLog</div>}/>
+                    <Link href="#userlog" title={<div className='anchor'>UserLog</div>} />
+                  </Link>
+                </Anchor>
+                </div>
+              <div className="right">
+                <div id='systemLog' className='title'>SystemLog</div>
+                <div className='otherLogRight'>
+                  <div  className="otherForm">
+                    <div className='otherFormLabel'>等级设置：</div>
+                    <Select
+                      className='otherFormValue'
+                      size="large"
+                      defaultValue={info.OtherLog.SysLog.Level}
+                      value={info.OtherLog.SysLog.Level}
+                      onChange={handleSystemLevelChange}
+                      style={{ flex: '1' }}
+                      options={options}
+                    />
+                  </div>
+                  <div className="otherForm">
+                    <div className='otherFormLabel'>输出路径：</div>
+                    <Search
+                        className='otherFormValue'
+                        placeholder="选择本地路径"
+                        defaultValue={info.OtherLog.SysLog.Path}
+                        status={(sysValidation === 1 || sysValidation === 2) ? 'error': null}
+                        allowClear
+                        onSearch={handleSystemPathSelect}
+                        onBlur={handleSystemPathSelect}
+                        enterButton="浏览路径"
+                        size="large"
+                      />
+                  </div>
+                  {sysValidation === 1 && <div className='validation'>值不能为空</div>}
+                  {sysValidation === 2 && <div className='validation'>请输入正确路径</div>}
+                </div>
+
+                <div id='userlog' className='title'>UserLog</div>
+                <div className='otherLogRight'>
+                  <div className="otherForm">
+                    <div className='otherFormLabel'>  等级设置：</div>
+                    <Select
+                      className='otherFormValue'
+                      size="large"
+                      defaultValue={info.OtherLog.UserLog.Level}
+                      value={info.OtherLog.UserLog.Level}
+                      onChange={handleUserlogLevelChange}
+                      style={{ flex: '1' }}
+                      options={options}
+                    />
+                  </div>
+                  <div className="otherForm">
+                    <div className='otherFormLabel'> 输出路径：</div>
+                    <Search
+                        className='otherFormValue'
+                        placeholder="选择本地路径"
+                        allowClear
+                        defaultValue={info.OtherLog.UserLog.Path}
+                        status={(useValidation === 1 || useValidation === 2) ? 'error': null}
+                        onSearch={handleUserlogPathSelect}
+                        onBlur={handleUserlogPathSelect}
+                        enterButton="浏览路径"
+                        size="large"
+                      />
+                  </div>
+                  {useValidation === 1 && <div className='validation'>值不能为空</div>}
+                  {useValidation === 2 && <div className='validation'>请输入正确路径</div>}
+                </div>
+                
+              </div>
+            </div>
+          )
+        }
+        
+        return (
+          <Tabs
+            defaultActiveKey="globalSetting"
+            tabBarExtraContent={extraCount}
+          >
+            <Tabs.TabPane
+              tab={<Button type="primary">全局设置</Button>}
+              key="globalSetting"
+            >
+              <GlobalSetting />
+            </Tabs.TabPane>
+            <Tabs.TabPane
+              tab={<Button type="primary">DC/AC测试参数</Button>}
+              key="paramsSetting"
+            >
+             <ParamsSetting />
+            </Tabs.TabPane>
+            <Tabs.TabPane
+              tab={<Button type="primary">Pattern测试参数</Button>}
+              key="funSetting"
+            >
+              <FunSetting />
+            </Tabs.TabPane>
+            <Tabs.TabPane
+              tab={<Button type="primary">其他日志</Button>}
+              key="otherLogs"
+            >
+              <OtherLogs />
+            </Tabs.TabPane>
+          </Tabs>
+        );
+      };
+      
+      function MainPageRender() {
+        return (
+          <div>
+            <NavAction />
+          </div>
+        );
+      }
+
+      const MainPage = <MainPageRender />;
+      ReactDOM.render(MainPage, document.getElementById("root"));
+    </script>
+  </body>
+</html>

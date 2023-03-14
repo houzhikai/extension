@@ -16,6 +16,10 @@
       {
         "command": "test-plugin.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "test-plugin.localFile",
+        "title": "localFile"
       }
     ]
   },
