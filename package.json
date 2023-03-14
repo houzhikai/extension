@@ -16,10 +16,6 @@
       {
         "command": "test-plugin.helloWorld",
         "title": "Hello World"
-      },
-      {
-        "command": "test-plugin.helloWorld1",
-        "title": "Hello World1"
       }
     ]
   },
