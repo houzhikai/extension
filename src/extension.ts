@@ -30,6 +30,9 @@ const getWebviewContent = () => {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Cat Coding</title>
             </head>
+            <script>
+              console.log(454566115)
+            </script>
             <body>
                 <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="300" />
             </body>
