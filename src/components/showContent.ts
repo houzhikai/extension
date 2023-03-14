@@ -2,8 +2,10 @@ import * as vscode from "vscode";
 import { WebviewPanel } from "vscode";
 
 let panel: WebviewPanel | undefined;
-export const showContent = () => {
-  if (panel === undefined) {
+export const showContent = (context: vscode.ExtensionContext) => {
+  if (panel !== undefined) {
+    panel.reveal();
+  } else {
     panel = vscode.window.createWebviewPanel(
       "firstTool", //标识webview的类型。在内部使用
       "firstTool", //显示给用户的面板标题
@@ -15,8 +17,14 @@ export const showContent = () => {
     );
     // add content
     panel.webview.html = getWebviewContent();
-  } else {
-    panel.reveal(); // 调用reveal()或拖动一个web视图面板到一个新的编辑器列移动web视图到那个新列。
+    // 当前面板关闭时复位
+    panel.onDidDispose(
+      () => {
+        panel = undefined;
+      },
+      null,
+      context.subscriptions
+    );
   }
 
   return panel;
