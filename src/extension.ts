@@ -10,7 +10,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("test-plugin.localFile", () =>
       showLocalContent(context)
     )
-    // )
   );
 }
 // export function deactivate() {}
