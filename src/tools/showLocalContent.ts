@@ -20,10 +20,12 @@ export const showLocalContent = (context: vscode.ExtensionContext) => {
     const diskPath = path.join(
       context.extensionPath,
       "localFile",
+      "datalog",
       "index.html"
     );
-    panel.webview.html = getWebViewContent(diskPath); // getIframeHtml("192.168.3.10/#/home"); //
+    panel.webview.html = getWebViewContent(diskPath);
   }
+
   return panel;
 };
 

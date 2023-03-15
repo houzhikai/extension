@@ -14,8 +14,13 @@
   "contributes": {
     "commands": [
       {
-        "command": "test-plugin.helloWorld",
-        "title": "Hello World"
+        "command": "test-plugin.content",
+        "title": "content"
+      },
+      {
+        "command": "test-plugin.reference",
+        "title": "reference",
+        "category": "reference"
       },
       {
         "command": "test-plugin.localFile",
