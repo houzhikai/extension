@@ -35,13 +35,17 @@ const getWebViewContent = (src: string) => {
   html = html.replace(
     /(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g,
     (m, $1, $2) => {
-      return (
-        $1 +
-        vscode.Uri.file(path.resolve(dirPath, $2))
-          .with({ scheme: "vscode-resource" })
-          .toString() +
-        '"'
-      );
+      // return (
+      //   $1 +
+      //   vscode.Uri.file(path.resolve(dirPath, $2))
+      //     .with({ scheme: "vscode-resource" })
+      //     .toString() +
+      //   '"'
+      // );
+      const absLocalPath = path.resolve(dirPath, $2);
+      const webviewUrl = panel?.webview.asWebviewUri(vscode.Uri.file(absLocalPath));
+      const replaceHref = $1 + webviewUrl?.toString() + '""';
+      return replaceHref;
     }
   );
   return html;

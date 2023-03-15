@@ -23,6 +23,11 @@ export const showReference = (context: vscode.ExtensionContext) => {
       "reference",
       "index.html"
     );
+  //   getExtensionFileVscodeResource: function(context, relativePath) {
+  //     const diskPath = vscode.Uri.file(path.join(context.extensionPath, relativePath));
+  //     return diskPath.with({ scheme: 'vscode-resource' }).toString();
+  // }
+  
     // add content
     panel.webview.html = getWebviewContent(diskPath);
     // 当前面板关闭时复位,用于在视图关闭时调用
@@ -45,17 +50,21 @@ function getWebviewContent(src: string) {
   html = html.replace(
     /(<link.+?href="|<script.+?src="|<iframe.+?src="|<img.+?src=")(.+?)"/g,
     (m, $1, $2) => {
-      if ($2.indexOf("https://") < 0) {
-        return (
-          $1 +
-          vscode.Uri.file(path.resolve(dirPath, $2))
-            .with({ scheme: "vscode-resource" })
-            .toString() +
-          '"'
-        );
-      } else {
-        return $1 + $2 + '"';
-      }
+      // if ($2.indexOf("https://") < 0) {
+      //   return (
+      //     $1 +
+      //     vscode.Uri.file(path.resolve(dirPath, $2))
+      //       .with({ scheme: "vscode-resource" })
+      //       .toString() +
+      //     '"'
+      //   );
+      // } else {
+      //   return $1 + $2 + '"';
+      // }
+      const absLocalPath = path.resolve(dirPath, $2);
+      const webviewUrl = panel?.webview.asWebviewUri(vscode.Uri.file(absLocalPath));
+      const replaceHref = $1 + webviewUrl?.toString() + '""';
+      return replaceHref;
     }
   );
   return html;
