@@ -5,24 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="./icon/logo.svg"></link>
     <title>Data Log</title>
-    <script src="https://cdn.staticfile.org/react/18.2.0/umd/react.development.js"></script>
-    <!-- <script src="./dependence/react.development.js"></script> -->
+    <!-- <script src="https://cdn.staticfile.org/react/18.2.0/umd/react.development.js"></script> -->
+    <script src="./dependence/react.development.js"></script>
 
-    <script src="https://cdn.staticfile.org/react-dom/18.2.0/umd/react-dom.development.js"></script>
-    <!-- <script src="./dependence/react-dom.development.js"></script> -->
+    <!-- <script src="https://cdn.staticfile.org/react-dom/18.2.0/umd/react-dom.development.js"></script> -->
+    <script src="./dependence/react-dom.development.js"></script>
 
-    <script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+    <!-- <script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script> -->
     <!-- 6.15版 -->
-    <!-- <script src="./dependence/babel.min.js"></script> -->
+    <script src="./dependence/babel.min.js"></script>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
-    <!-- <script src="./dependence/moment.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script> -->
+    <script src="./dependence/moment.min.js"></script>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.8/antd.compact.min.css" rel="stylesheet"/>
-    <!-- <link href="./dependence/antd.compact.min.css" rel="stylesheet" /> -->
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.8/antd.compact.min.css" rel="stylesheet"/> -->
+    <link href="./dependence/antd.compact.min.css" rel="stylesheet" />
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.8/antd.min.js"></script>
-    <!-- <script src="./dependence/antd.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.8/antd.min.js"></script> -->
+    <script src="./dependence/antd.min.js"></script>
    
   </head>
   <body>
@@ -349,7 +349,7 @@
       }
         // 左右占位符
         const extraCount = {
-          left: <img src="./icon/logo.svg" className="logo" />,
+          // left: <img src="./icon/logo.svg" className="logo" />,
           right: <Button type="primary" danger className="application" onClick={handleSave}>应用</Button>,
         };
   
@@ -1046,8 +1046,12 @@
         );
       }
 
-      const MainPage = <MainPageRender />;
-      ReactDOM.render(MainPage, document.getElementById("root"));
+      // const MainPage = <MainPageRender />;
+      // ReactDOM.render(MainPage, document.getElementById("root"));
+
+      const container = document.getElementById("root");
+      const root = ReactDOM.createRoot(container);
+      root.render(<MainPageRender />);
     </script>
   </body>
 </html>

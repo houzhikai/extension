@@ -29,24 +29,31 @@ export const showLocalContent = (context: vscode.ExtensionContext) => {
   return panel;
 };
 
-const getWebViewContent = (src: string) => {
-  const dirPath = path.dirname(src);
-  let html = fs.readFileSync(src, "utf-8");
+function getWebViewContent(src: string) {
+  const resourcePath = path.join(src);
+  const dirPath = path.dirname(resourcePath);
+  let html = fs.readFileSync(resourcePath, "utf-8");
   html = html.replace(
-    /(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g,
+    /(<link.+?href="|<script.+?src="|<iframe.+?src="|<img.+?src=")(.+?)"/g,
     (m, $1, $2) => {
-      // return (
-      //   $1 +
-      //   vscode.Uri.file(path.resolve(dirPath, $2))
-      //     .with({ scheme: "vscode-resource" })
-      //     .toString() +
-      //   '"'
-      // );
+      // if ($2.indexOf("https://") < 0) {
+      //   return (
+      //     $1 +
+      //     vscode.Uri.file(path.resolve(dirPath, $2))
+      //       .with({ scheme: "vscode-resource" })
+      //       .toString() +
+      //     '"'
+      //   );
+      // } else {
+      //   return $1 + $2 + '"';
+      // }
       const absLocalPath = path.resolve(dirPath, $2);
-      const webviewUrl = panel?.webview.asWebviewUri(vscode.Uri.file(absLocalPath));
+      const webviewUrl = panel?.webview.asWebviewUri(
+        vscode.Uri.file(absLocalPath)
+      );
       const replaceHref = $1 + webviewUrl?.toString() + '""';
       return replaceHref;
     }
   );
   return html;
-};
+}
